@@ -1,13 +1,17 @@
 #include "kpeoplesink.h"
 #include <QDebug>
+#include <QTimer>
 #include <KPeopleBackend/BasePersonsDataSource>
-
+#include <KContacts/VCardConverter>
+#include <KContacts/Picture>
 #include <KPluginFactory>
 #include <KPluginLoader>
-
 #include <sink/store.h>
 
 using namespace KPeople;
+using namespace Sink;
+using namespace Sink::ApplicationDomain;
+using Sink::ApplicationDomain::SinkResource;
 
 class KPeopleSinkDataSource : public KPeople::BasePersonsDataSource
 {
@@ -23,44 +27,77 @@ class SinkContact : public AbstractContact
 {
 public:
     SinkContact() {}
-    SinkContact(const Sink::ApplicationDomain::Contact & contact) : mContact(contact) {}
+    SinkContact(const Sink::ApplicationDomain::Contact & contact)
+        : m_contact(contact)
+    {
+        auto vcard = contact.getVcard();
+        KContacts::VCardConverter converter;
+        m_addressee = converter.parseVCard(vcard);
+    }
 
     QVariant customProperty(const QString & key) const override
     {
         QVariant ret;
         if (key == NameProperty) {
-            const QString name = mContact.getProperty("fn").toString();
+            const QString name = m_contact.getFn();
             if (!name.isEmpty()) {
                 return name;
             }
+            if (!m_addressee.preferredEmail().isEmpty()) {
+                return m_addressee.preferredEmail();
+            }
+            if (!m_addressee.phoneNumbers().isEmpty()) {
+                return m_addressee.phoneNumbers().at(0).number();
+            }
             return QVariant();
-        } else if (key == EmailProperty)
-            return mContact.getProperty("emails");
+        } 
         else if (key == PictureProperty)
-            return mContact.getProperty("photo");       
+            return m_contact.getPhoto();
+
+        else if (key == EmailProperty)
+            return m_addressee.preferredEmail();
+
+        else if (key == AllPhoneNumbersProperty) {
+            QVariantList numbers;
+            Q_FOREACH (const KContacts::PhoneNumber &phoneNumber, m_addressee.phoneNumbers()) {
+                // convert from KContacts specific format to QString
+                numbers << phoneNumber.number();
+            }
+            return numbers;
+        } 
+        else if (key == PhoneNumberProperty) {
+            return m_addressee.phoneNumbers().isEmpty() ? QVariant() : m_addressee.phoneNumbers().at(0).number();
+        }
 
         return ret;
     }
 
 private:
-    Sink::ApplicationDomain::Contact mContact;
+    KContacts::Addressee m_addressee;
+    Sink::ApplicationDomain::Contact m_contact;
 };
 
 KPeopleSink::KPeopleSink()
     : KPeople::AllContactsMonitor()
 {
-    getContactstoKpeople();
+    QTimer::singleShot(500, this, &KPeopleSink::getContactstoKpeople);
 }
 
 void KPeopleSink::getContactstoKpeople(){
-    qDebug()<<"KPEOPLESINK";
     const QList<Sink::ApplicationDomain::Contact> sinkContacts = Sink::Store::read<Sink::ApplicationDomain::Contact>(Sink::Query());
     Q_FOREACH (const Sink::ApplicationDomain::Contact sinkContact, sinkContacts){
 
-        QString uid = sinkContact.getProperty("uid").toString();
-        QString resourceId = sinkContact.resourceInstanceIdentifier();
-        const QString uri = "sink://" + resourceId + "/" + uid;
-        qDebug()<<uri;
+        //to get uid of contact
+        QString uid = sinkContact.getUid();
+
+        //to get accountId of contact
+        QByteArray resourceId = sinkContact.resourceInstanceIdentifier();
+        auto resource = Store::readOne<ApplicationDomain::SinkResource>(Sink::Query().filter(resourceId));
+        QString accountId = resource.getAccount();
+
+        //create uri for sink contact
+        const QString uri = "sink://" + accountId + "/" + uid;
+
         KPeople::AbstractContact::Ptr contact(new SinkContact(sinkContact));
         Q_EMIT contactAdded(uri,contact);
     }

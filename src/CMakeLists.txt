@@ -4,6 +4,7 @@ target_link_libraries(
     Qt5::Network
     KF5::PeopleBackend 
     KF5::CoreAddons 
+    KF5::Contacts
     sink
     KAsync
     )
