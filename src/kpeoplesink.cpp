@@ -49,6 +49,7 @@ private:
 KPeopleSink::KPeopleSink()
     : KPeople::AllContactsMonitor()
 {
+    getContactstoKpeople();
 }
 
 void KPeopleSink::getContactstoKpeople(){
@@ -80,7 +81,7 @@ KPeopleSinkDataSource::~KPeopleSinkDataSource()
 
 QString KPeopleSinkDataSource::sourcePluginId() const
 {
-    return QStringLiteral("vcard");
+    return QStringLiteral("sink");
 }
 
 AllContactsMonitor* KPeopleSinkDataSource::createAllContactsMonitor()
