@@ -1,5 +1,6 @@
 #include "kpeoplesink.h"
 #include <QDebug>
+#include <QImage>
 #include <QTimer>
 #include <KPeopleBackend/BasePersonsDataSource>
 #include <KContacts/VCardConverter>
@@ -28,7 +29,6 @@ class SinkContact : public AbstractContact
 public:
     SinkContact() {}
     SinkContact(const Sink::ApplicationDomain::Contact & contact)
-        : m_contact(contact)
     {
         auto vcard = contact.getVcard();
         KContacts::VCardConverter converter;
@@ -39,28 +39,29 @@ public:
     {
         QVariant ret;
         if (key == NameProperty) {
-            const QString name = m_contact.getFn();
+            const QString name = m_addressee.realName();
             if (!name.isEmpty()) {
                 return name;
             }
             if (!m_addressee.preferredEmail().isEmpty()) {
                 return m_addressee.preferredEmail();
             }
-            if (!m_addressee.phoneNumbers().isEmpty()) {
+            if (!m_addressee.phoneNumbers().isEmpty()) {               
+                 // convert from KContacts specific format to QString
                 return m_addressee.phoneNumbers().at(0).number();
             }
             return QVariant();
         } 
-        else if (key == PictureProperty)
-            return m_contact.getPhoto();
-
+        else if (key == PictureProperty){
+            // convert from KContacts specific format to QString
+            return m_addressee.photo().data();
+        }
         else if (key == EmailProperty)
             return m_addressee.preferredEmail();
 
         else if (key == AllPhoneNumbersProperty) {
             QVariantList numbers;
             Q_FOREACH (const KContacts::PhoneNumber &phoneNumber, m_addressee.phoneNumbers()) {
-                // convert from KContacts specific format to QString
                 numbers << phoneNumber.number();
             }
             return numbers;
@@ -74,7 +75,6 @@ public:
 
 private:
     KContacts::Addressee m_addressee;
-    Sink::ApplicationDomain::Contact m_contact;
 };
 
 KPeopleSink::KPeopleSink()
