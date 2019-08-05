@@ -8,6 +8,8 @@
 #include <KPluginFactory>
 #include <KPluginLoader>
 #include <sink/store.h>
+#include <sink/notifier.h>
+#include <sink/notification.h>
 
 using namespace KPeople;
 using namespace Sink;
@@ -80,27 +82,62 @@ private:
 KPeopleSink::KPeopleSink()
     : KPeople::AllContactsMonitor()
 {
+    qDebug()<<"KPEOPLESINK";
     QTimer::singleShot(500, this, &KPeopleSink::getContactstoKpeople);
 }
 
 void KPeopleSink::getContactstoKpeople(){
     const QList<Sink::ApplicationDomain::Contact> sinkContacts = Sink::Store::read<Sink::ApplicationDomain::Contact>(Sink::Query());
     Q_FOREACH (const Sink::ApplicationDomain::Contact sinkContact, sinkContacts){
-
-        //to get uid of contact
-        QString uid = sinkContact.getUid();
-
-        //to get accountId of contact
+        //to get resourceId
         QByteArray resourceId = sinkContact.resourceInstanceIdentifier();
-        auto resource = Store::readOne<ApplicationDomain::SinkResource>(Sink::Query().filter(resourceId));
-        QString accountId = resource.getAccount();
+        //get uri
+        const QString uri = getUri(sinkContact, resourceId);
 
-        //create uri for sink contact
-        const QString uri = "sink://" + accountId + "/" + uid;
+        //add uri of contact to set
+        m_contactsSet.insert(uri);
 
         KPeople::AbstractContact::Ptr contact(new SinkContact(sinkContact));
+
+        m_notifier = new Notifier(resourceId);
+        m_notifier->registerHandler([=] (const Sink::Notification &notification) {
+            if (notification.type == Notification::Info && notification.code == 1) {
+                qDebug()<<"Status "<<notification.code;
+                processRecentlySyncedContacts(resourceId);
+            }
+        });
+
         Q_EMIT contactAdded(uri,contact);
     }
+}
+
+void KPeopleSink::processRecentlySyncedContacts(QByteArray resourceId){
+    const QList<Sink::ApplicationDomain::Contact> sinkContacts = Sink::Store::read<Sink::ApplicationDomain::Contact>(Sink::Query().resourceFilter(resourceId));
+    Q_FOREACH (const Sink::ApplicationDomain::Contact sinkContact, sinkContacts){
+        //get uri
+        const QString uri = getUri(sinkContact, resourceId);
+        qDebug()<<"inside function : "<<uri;
+        KPeople::AbstractContact::Ptr contact(new SinkContact(sinkContact));
+
+        if(!m_contactsSet.contains(uri)){
+            qDebug()<<"\n\n\n\nhello : "<<uri;
+            m_contactsSet.insert(uri);
+            Q_EMIT contactAdded(uri,contact);
+        }
+
+    }
+}
+
+QString KPeopleSink::getUri(Sink::ApplicationDomain::Contact sinkContact, QByteArray resourceId)
+{
+    //to get uid of contact
+    QString uid = sinkContact.getUid();
+    //to get accountId of contact
+    auto resource = Store::readOne<ApplicationDomain::SinkResource>(Sink::Query().filter(resourceId));
+    QString accountId = resource.getAccount();
+    //create uri for sink contact
+    QString uri = "sink://" + accountId + "/" + uid;
+    return uri;
 }
 
 KPeopleSink::~KPeopleSink()
@@ -130,3 +167,6 @@ K_PLUGIN_FACTORY_WITH_JSON( KPeopleSinkDataSourceFactory, "kpeoplesink.json", re
 K_EXPORT_PLUGIN( KPeopleSinkDataSourceFactory("kpeoplesink") )
 
 #include "kpeoplesink.moc"
+
+// HeYliOIHXpQT05GXZrKLzbqcgr8yWlyr3EWZ9q4K65wHTsIDStOVca2o6p3gLITRlUjL9OQu
+// VALUE=DATE-AND-OR-TIME:20190731T081743Z
