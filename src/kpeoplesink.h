@@ -16,7 +16,7 @@ class Q_DECL_EXPORT KPeopleSink : public KPeople::AllContactsMonitor
 {
     Q_OBJECT
     Notifier *m_notifier;
-    QSet<QString> m_contactsSet;
+    QHash<QString, Sink::ApplicationDomain::Contact> m_contactUriHash;
 
 public:
     KPeopleSink();

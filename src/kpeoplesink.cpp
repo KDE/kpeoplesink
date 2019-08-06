@@ -95,13 +95,13 @@ void KPeopleSink::getContactstoKpeople(){
         const QString uri = getUri(sinkContact, resourceId);
 
         //add uri of contact to set
-        m_contactsSet.insert(uri);
+        m_contactUriHash.insert(uri, sinkContact);
 
         KPeople::AbstractContact::Ptr contact(new SinkContact(sinkContact));
 
         m_notifier = new Notifier(resourceId);
         m_notifier->registerHandler([=] (const Sink::Notification &notification) {
-            if (notification.type == Notification::Info && notification.code == 1) {
+            if (notification.type == Notification::Info && notification.code == SyncStatus::SyncSuccess) {
                 qDebug()<<"Status "<<notification.code;
                 processRecentlySyncedContacts(resourceId);
             }
@@ -117,12 +117,18 @@ void KPeopleSink::processRecentlySyncedContacts(QByteArray resourceId){
         //get uri
         const QString uri = getUri(sinkContact, resourceId);
         qDebug()<<"inside function : "<<uri;
-        KPeople::AbstractContact::Ptr contact(new SinkContact(sinkContact));
 
-        if(!m_contactsSet.contains(uri)){
-            qDebug()<<"\n\n\n\nhello : "<<uri;
-            m_contactsSet.insert(uri);
+        if(!m_contactUriHash.contains(uri)){
+            qDebug()<<"\n\n\nADD CONTACT : "<<uri;
+            m_contactUriHash.insert(uri, sinkContact);
+            KPeople::AbstractContact::Ptr contact(new SinkContact(sinkContact));
             Q_EMIT contactAdded(uri,contact);
+        }
+        else if(m_contactUriHash.value(uri).getVcard() != sinkContact.getVcard()){
+            qDebug()<<"\n\n\nCHANGE CONTACT : "<<uri; 
+            m_contactUriHash.insert(uri, sinkContact);
+            KPeople::AbstractContact::Ptr contact(new SinkContact(sinkContact));
+            Q_EMIT contactChanged(uri,contact);
         }
 
     }
@@ -167,6 +173,3 @@ K_PLUGIN_FACTORY_WITH_JSON( KPeopleSinkDataSourceFactory, "kpeoplesink.json", re
 K_EXPORT_PLUGIN( KPeopleSinkDataSourceFactory("kpeoplesink") )
 
 #include "kpeoplesink.moc"
-
-// HeYliOIHXpQT05GXZrKLzbqcgr8yWlyr3EWZ9q4K65wHTsIDStOVca2o6p3gLITRlUjL9OQu
-// VALUE=DATE-AND-OR-TIME:20190731T081743Z
