@@ -25,6 +25,7 @@ public:
 public slots:
     void getContactstoKpeople();
     void processRecentlySyncedContacts(QByteArray resourceId);
+    void toRemoveContact(QSet<QString> contactUri);
 
 private:
     QString getUri(Contact sinkContact, QByteArray resourceId);

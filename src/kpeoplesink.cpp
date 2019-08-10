@@ -102,7 +102,6 @@ void KPeopleSink::getContactstoKpeople(){
         m_notifier = new Notifier(resourceId);
         m_notifier->registerHandler([=] (const Sink::Notification &notification) {
             if (notification.type == Notification::Info && notification.code == SyncStatus::SyncSuccess) {
-                qDebug()<<"Status "<<notification.code;
                 processRecentlySyncedContacts(resourceId);
             }
         });
@@ -113,24 +112,38 @@ void KPeopleSink::getContactstoKpeople(){
 
 void KPeopleSink::processRecentlySyncedContacts(QByteArray resourceId){
     const QList<Sink::ApplicationDomain::Contact> sinkContacts = Sink::Store::read<Sink::ApplicationDomain::Contact>(Sink::Query().resourceFilter(resourceId));
+    QSet<QString> contactUri;
     Q_FOREACH (const Sink::ApplicationDomain::Contact sinkContact, sinkContacts){
         //get uri
         const QString uri = getUri(sinkContact, resourceId);
-        qDebug()<<"inside function : "<<uri;
-
+        contactUri.insert(uri);
         if(!m_contactUriHash.contains(uri)){
-            qDebug()<<"\n\n\nADD CONTACT : "<<uri;
+            qDebug()<<"ADD CONTACT";
             m_contactUriHash.insert(uri, sinkContact);
             KPeople::AbstractContact::Ptr contact(new SinkContact(sinkContact));
             Q_EMIT contactAdded(uri,contact);
         }
         else if(m_contactUriHash.value(uri).getVcard() != sinkContact.getVcard()){
-            qDebug()<<"\n\n\nCHANGE CONTACT : "<<uri; 
+            qDebug()<<"CHANGE CONTACT"; 
             m_contactUriHash.insert(uri, sinkContact);
             KPeople::AbstractContact::Ptr contact(new SinkContact(sinkContact));
             Q_EMIT contactChanged(uri,contact);
         }
 
+    }
+    toRemoveContact(contactUri);
+}
+
+void KPeopleSink::toRemoveContact(QSet<QString> contactUri){
+    QHashIterator<QString, Sink::ApplicationDomain::Contact> i(m_contactUriHash);
+    while (i.hasNext()) {
+        i.next();
+        QString uri = i.key();
+        if(!contactUri.contains(uri)){
+            qDebug()<<" REMOVE CONTACT";
+            m_contactUriHash.remove(uri);
+            Q_EMIT contactRemoved(uri);
+        }
     }
 }
 
