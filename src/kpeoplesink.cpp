@@ -32,7 +32,6 @@
 using namespace KPeople;
 using namespace Sink;
 using namespace Sink::ApplicationDomain;
-using Sink::ApplicationDomain::SinkResource;
 
 class KPeopleSinkDataSource : public KPeople::BasePersonsDataSource
 {
@@ -48,7 +47,7 @@ class SinkContact : public AbstractContact
 {
 public:
     SinkContact() {}
-    SinkContact(const Sink::ApplicationDomain::Contact & contact)
+    SinkContact(const Contact & contact)
     {
         auto vcard = contact.getVcard();
         KContacts::VCardConverter converter;
@@ -101,22 +100,17 @@ KPeopleSink::KPeopleSink()
     : KPeople::AllContactsMonitor()
 {
     qDebug()<<"KPEOPLESINK";
-    QTimer::singleShot(500, this, &KPeopleSink::getContactstoKpeople);
+    QTimer::singleShot(500, this, &KPeopleSink::initialSinkContactstoKpeople);
 }
 
-void KPeopleSink::getContactstoKpeople(){
-    const QList<Sink::ApplicationDomain::Contact> sinkContacts = Sink::Store::read<Sink::ApplicationDomain::Contact>(Sink::Query());
-    Q_FOREACH (const Sink::ApplicationDomain::Contact sinkContact, sinkContacts){
+void KPeopleSink::initialSinkContactstoKpeople(){
+    //fetch all the addressbooks synced by sink
+    const QList<Addressbook> sinkAdressbooks = Sink::Store::read<Addressbook>(Sink::Query());
+    Q_FOREACH(const Addressbook sinkAddressbook, sinkAdressbooks){
         //to get resourceId
-        QByteArray resourceId = sinkContact.resourceInstanceIdentifier();
-        //get uri
-        const QString uri = getUri(sinkContact, resourceId);
+        QByteArray resourceId = sinkAddressbook.resourceInstanceIdentifier();
 
-        //add uri of contact to set
-        m_contactUriHash.insert(uri, sinkContact);
-
-        KPeople::AbstractContact::Ptr contact(new SinkContact(sinkContact));
-
+        //set notifer
         m_notifier = new Notifier(resourceId);
         m_notifier->registerHandler([=] (const Sink::Notification &notification) {
             if (notification.type == Notification::Info && notification.code == SyncStatus::SyncSuccess) {
@@ -124,14 +118,25 @@ void KPeopleSink::getContactstoKpeople(){
             }
         });
 
-        Q_EMIT contactAdded(uri,contact);
+        //fetch all the contacts synced by sink
+        const QList<Contact> sinkContacts = Sink::Store::read<Contact>(Sink::Query().resourceFilter(resourceId));
+        Q_FOREACH (const Contact sinkContact, sinkContacts){
+            //get uri
+            const QString uri = getUri(sinkContact, resourceId);
+
+            //add uri of contact to set
+            m_contactUriHash.insert(uri, sinkContact);
+
+            KPeople::AbstractContact::Ptr contact(new SinkContact(sinkContact));
+            Q_EMIT contactAdded(uri,contact);
+        }
     }
 }
 
 void KPeopleSink::processRecentlySyncedContacts(QByteArray resourceId){
-    const QList<Sink::ApplicationDomain::Contact> sinkContacts = Sink::Store::read<Sink::ApplicationDomain::Contact>(Sink::Query().resourceFilter(resourceId));
+    const QList<Contact> sinkContacts = Sink::Store::read<Contact>(Sink::Query().resourceFilter(resourceId));
     QSet<QString> contactUri;
-    Q_FOREACH (const Sink::ApplicationDomain::Contact sinkContact, sinkContacts){
+    Q_FOREACH (const Contact sinkContact, sinkContacts){
         //get uri
         const QString uri = getUri(sinkContact, resourceId);
         contactUri.insert(uri);
@@ -153,7 +158,7 @@ void KPeopleSink::processRecentlySyncedContacts(QByteArray resourceId){
 }
 
 void KPeopleSink::toRemoveContact(QSet<QString> contactUri){
-    QHashIterator<QString, Sink::ApplicationDomain::Contact> i(m_contactUriHash);
+    QHashIterator<QString, Contact> i(m_contactUriHash);
     while (i.hasNext()) {
         i.next();
         QString uri = i.key();
@@ -165,12 +170,12 @@ void KPeopleSink::toRemoveContact(QSet<QString> contactUri){
     }
 }
 
-QString KPeopleSink::getUri(Sink::ApplicationDomain::Contact sinkContact, QByteArray resourceId)
+QString KPeopleSink::getUri(Contact sinkContact, QByteArray resourceId)
 {
     //to get uid of contact
     QString uid = sinkContact.getUid();
     //to get accountId of contact
-    auto resource = Store::readOne<ApplicationDomain::SinkResource>(Sink::Query().filter(resourceId));
+    auto resource = Store::readOne<SinkResource>(Sink::Query().filter(resourceId));
     QString accountId = resource.getAccount();
     //create uri for sink contact
     QString uri = "sink://" + accountId + "/" + uid;

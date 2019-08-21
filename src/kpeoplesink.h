@@ -28,20 +28,19 @@
 
 using namespace Sink;
 using namespace Sink::ApplicationDomain;
-using Sink::ApplicationDomain::SinkResource;
 
 class Q_DECL_EXPORT KPeopleSink : public KPeople::AllContactsMonitor
 {
     Q_OBJECT
     Notifier *m_notifier;
-    QHash<QString, Sink::ApplicationDomain::Contact> m_contactUriHash;
+    QHash<QString, Contact> m_contactUriHash;
 
 public:
     KPeopleSink();
     virtual ~KPeopleSink();
 
 public slots:
-    void getContactstoKpeople();
+    void initialSinkContactstoKpeople();
     void processRecentlySyncedContacts(QByteArray resourceId);
     void toRemoveContact(QSet<QString> contactUri);
 
