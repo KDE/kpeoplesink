@@ -48,10 +48,9 @@ class SinkContact : public AbstractContact
 public:
     SinkContact() {}
     SinkContact(const Contact & contact)
+        : m_contact(contact)
     {
-        auto vcard = contact.getVcard();
-        KContacts::VCardConverter converter;
-        m_addressee = converter.parseVCard(vcard);
+        setContact(contact);
     }
 
     QVariant customProperty(const QString & key) const override
@@ -92,7 +91,16 @@ public:
         return ret;
     }
 
+    void setContact(const Contact & contact) {
+        m_contact = contact;
+
+        KContacts::VCardConverter converter;
+        m_addressee = converter.parseVCard(contact.getVcard());
+    }
+    Contact contact() const { return m_contact; }
+
 private:
+    Contact m_contact;
     KContacts::Addressee m_addressee;
 };
 
@@ -125,9 +133,9 @@ void KPeopleSink::initialSinkContactstoKpeople(){
             const QString uri = getUri(sinkContact, resourceId);
 
             //add uri of contact to set
-            m_contactUriHash.insert(uri, sinkContact);
-
             KPeople::AbstractContact::Ptr contact(new SinkContact(sinkContact));
+            m_contactUriHash.insert(uri, contact);
+
             Q_EMIT contactAdded(uri,contact);
         }
     }
@@ -140,16 +148,15 @@ void KPeopleSink::processRecentlySyncedContacts(QByteArray resourceId){
         //get uri
         const QString uri = getUri(sinkContact, resourceId);
         contactUri.insert(uri);
-        if(!m_contactUriHash.contains(uri)){
+
+        auto contact = m_contactUriHash.value(uri);
+        if(!contact){
             qDebug()<<"ADD CONTACT";
-            m_contactUriHash.insert(uri, sinkContact);
             KPeople::AbstractContact::Ptr contact(new SinkContact(sinkContact));
+            m_contactUriHash.insert(uri, contact);
             Q_EMIT contactAdded(uri,contact);
-        }
-        else if(m_contactUriHash.value(uri).getVcard() != sinkContact.getVcard()){
+        } else if(static_cast<SinkContact*>(contact.data())->contact().getVcard() != sinkContact.getVcard()){
             qDebug()<<"CHANGE CONTACT"; 
-            m_contactUriHash.insert(uri, sinkContact);
-            KPeople::AbstractContact::Ptr contact(new SinkContact(sinkContact));
             Q_EMIT contactChanged(uri,contact);
         }
 
@@ -158,7 +165,7 @@ void KPeopleSink::processRecentlySyncedContacts(QByteArray resourceId){
 }
 
 void KPeopleSink::toRemoveContact(QSet<QString> contactUri){
-    QHashIterator<QString, Contact> i(m_contactUriHash);
+    QHashIterator<QString, AbstractContact::Ptr> i(m_contactUriHash);
     while (i.hasNext()) {
         i.next();
         QString uri = i.key();

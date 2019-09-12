@@ -33,7 +33,7 @@ class Q_DECL_EXPORT KPeopleSink : public KPeople::AllContactsMonitor
 {
     Q_OBJECT
     Notifier *m_notifier;
-    QHash<QString, Contact> m_contactUriHash;
+    QHash<QString, KPeople::AbstractContact::Ptr> m_contactUriHash;
 
 public:
     KPeopleSink();
