@@ -157,6 +157,7 @@ void KPeopleSink::processRecentlySyncedContacts(QByteArray resourceId){
             Q_EMIT contactAdded(uri,contact);
         } else if(static_cast<SinkContact*>(contact.data())->contact().getVcard() != sinkContact.getVcard()){
             qDebug()<<"CHANGE CONTACT"; 
+            static_cast<SinkContact*>(contact.data())->setContact(sinkContact);
             Q_EMIT contactChanged(uri,contact);
         }
 
