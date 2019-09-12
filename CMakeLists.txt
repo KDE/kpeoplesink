@@ -24,6 +24,7 @@ find_package(Qt5 "5.2" REQUIRED COMPONENTS Widgets)
 find_package(KF5 "5.8" REQUIRED COMPONENTS CoreAddons People)
 find_package(Qt5 ${QT_MIN_VERSION} REQUIRED NO_MODULE COMPONENTS Network)
 find_package(Sink CONFIG REQUIRED)
+find_package(KAsync CONFIG REQUIRED)
 find_package(KF5Contacts REQUIRED)
 
 ################# build and install #################
