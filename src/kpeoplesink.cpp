@@ -21,6 +21,7 @@
 #include <QImage>
 #include <QTimer>
 #include <KPeopleBackend/BasePersonsDataSource>
+#include <KPeopleBackend/AbstractEditableContact>
 #include <KContacts/VCardConverter>
 #include <KContacts/Picture>
 #include <KPluginFactory>
@@ -33,17 +34,26 @@ using namespace KPeople;
 using namespace Sink;
 using namespace Sink::ApplicationDomain;
 
-class KPeopleSinkDataSource : public KPeople::BasePersonsDataSource
+class KPeopleSinkDataSource : public KPeople::BasePersonsDataSourceV2
 {
 public:
     KPeopleSinkDataSource(QObject *parent, const QVariantList &data);
     virtual ~KPeopleSinkDataSource();
     QString sourcePluginId() const override;
 
+    bool addContact(const QVariantMap &properties) {
+        //code logic to be added
+        return true;
+    }
+    bool deleteContact(const QString &uri) {
+        //code logic to be added
+        return true;
+    }
+
     KPeople::AllContactsMonitor* createAllContactsMonitor() override;
 };
 
-class SinkContact : public AbstractContact
+class SinkContact : public KPeople::AbstractEditableContact
 {
 public:
     SinkContact() {}
@@ -87,17 +97,36 @@ public:
         else if (key == PhoneNumberProperty) {
             return m_addressee.phoneNumbers().isEmpty() ? QVariant() : m_addressee.phoneNumbers().at(0).number();
         }
+        else if (key == VCardProperty) {
+            return m_contact.getVcard();
+        }
 
         return ret;
     }
 
     void setContact(const Contact & contact) {
         m_contact = contact;
-
         KContacts::VCardConverter converter;
         m_addressee = converter.parseVCard(contact.getVcard());
     }
     Contact contact() const { return m_contact; }
+
+    bool setCustomProperty(const QString & key, const QVariant & value) override {
+
+        if (key == VCardProperty) {
+            const QByteArray rawVCard = value.toByteArray();
+            m_contact.setVcard(rawVCard);
+            
+            KContacts::VCardConverter converter;
+            m_addressee = converter.parseVCard(rawVCard);
+            //1. fetch resourceId of contact
+            QByteArray resourceID = m_contact.resourceInstanceIdentifier();
+            //2. call modify function
+            Sink::Store::modify<Contact>(Sink::Query().resourceFilter(resourceID), m_contact);
+            return true;
+        }
+        return false;
+    }
 
 private:
     Contact m_contact;
@@ -194,7 +223,7 @@ KPeopleSink::~KPeopleSink()
 {}
 
 KPeopleSinkDataSource::KPeopleSinkDataSource(QObject *parent, const QVariantList &args)
-: BasePersonsDataSource(parent)
+: BasePersonsDataSourceV2(parent)
 {
     Q_UNUSED(args);
 }
