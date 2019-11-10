@@ -43,11 +43,11 @@ public:
 
     bool addContact(const QVariantMap &properties) {
         //code logic to be added
-        return true;
+        return false;
     }
     bool deleteContact(const QString &uri) {
         //code logic to be added
-        return true;
+        return false;
     }
 
     KPeople::AllContactsMonitor* createAllContactsMonitor() override;
@@ -60,7 +60,7 @@ public:
     SinkContact(const Contact & contact)
         : m_contact(contact)
     {
-        setContact(contact);
+        setAddressee(contact);
     }
 
     QVariant customProperty(const QString & key) const override
@@ -71,17 +71,18 @@ public:
             if (!name.isEmpty()) {
                 return name;
             }
+            if (!m_addressee.phoneNumbers().isEmpty()) {              
+                return m_addressee.phoneNumbers().at(0).number();
+            }
             if (!m_addressee.preferredEmail().isEmpty()) {
                 return m_addressee.preferredEmail();
             }
-            if (!m_addressee.phoneNumbers().isEmpty()) {               
-                 // convert from KContacts specific format to QString
-                return m_addressee.phoneNumbers().at(0).number();
-            }
             return QVariant();
         } 
+        else if (key == VCardProperty) {
+            return m_contact.getVcard();
+        }
         else if (key == PictureProperty){
-            // convert from KContacts specific format to QString
             return m_addressee.photo().data();
         }
         else if (key == EmailProperty)
@@ -97,14 +98,11 @@ public:
         else if (key == PhoneNumberProperty) {
             return m_addressee.phoneNumbers().isEmpty() ? QVariant() : m_addressee.phoneNumbers().at(0).number();
         }
-        else if (key == VCardProperty) {
-            return m_contact.getVcard();
-        }
 
         return ret;
     }
 
-    void setContact(const Contact & contact) {
+    void setAddressee(const Contact & contact) {
         m_contact = contact;
         KContacts::VCardConverter converter;
         m_addressee = converter.parseVCard(contact.getVcard());
@@ -163,7 +161,7 @@ void KPeopleSink::initialSinkContactstoKpeople(){
 
             //add uri of contact to set
             KPeople::AbstractContact::Ptr contact(new SinkContact(sinkContact));
-            m_contactUriHash.insert(uri, contact);
+            m_contactUriMap.insert(uri, contact);
 
             Q_EMIT contactAdded(uri,contact);
         }
@@ -178,15 +176,15 @@ void KPeopleSink::processRecentlySyncedContacts(QByteArray resourceId){
         const QString uri = getUri(sinkContact, resourceId);
         contactUri.insert(uri);
 
-        auto contact = m_contactUriHash.value(uri);
+        auto contact = m_contactUriMap.value(uri);
         if(!contact){
             qDebug()<<"ADD CONTACT";
             KPeople::AbstractContact::Ptr contact(new SinkContact(sinkContact));
-            m_contactUriHash.insert(uri, contact);
+            m_contactUriMap.insert(uri, contact);
             Q_EMIT contactAdded(uri,contact);
         } else if(static_cast<SinkContact*>(contact.data())->contact().getVcard() != sinkContact.getVcard()){
             qDebug()<<"CHANGE CONTACT"; 
-            static_cast<SinkContact*>(contact.data())->setContact(sinkContact);
+            static_cast<SinkContact*>(contact.data())->setAddressee(sinkContact);
             Q_EMIT contactChanged(uri,contact);
         }
 
@@ -195,13 +193,13 @@ void KPeopleSink::processRecentlySyncedContacts(QByteArray resourceId){
 }
 
 void KPeopleSink::toRemoveContact(QSet<QString> contactUri){
-    QHashIterator<QString, AbstractContact::Ptr> i(m_contactUriHash);
+    QMapIterator<QString, AbstractContact::Ptr> i(m_contactUriMap);
     while (i.hasNext()) {
         i.next();
         QString uri = i.key();
         if(!contactUri.contains(uri)){
             qDebug()<<" REMOVE CONTACT";
-            m_contactUriHash.remove(uri);
+            m_contactUriMap.remove(uri);
             Q_EMIT contactRemoved(uri);
         }
     }
@@ -217,6 +215,11 @@ QString KPeopleSink::getUri(Contact sinkContact, QByteArray resourceId)
     //create uri for sink contact
     QString uri = "sink://" + accountId + "/" + uid;
     return uri;
+}
+
+QMap<QString, AbstractContact::Ptr> KPeopleSink::contacts()
+{
+    return m_contactUriMap;
 }
 
 KPeopleSink::~KPeopleSink()

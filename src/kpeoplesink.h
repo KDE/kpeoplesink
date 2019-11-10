@@ -33,11 +33,13 @@ class Q_DECL_EXPORT KPeopleSink : public KPeople::AllContactsMonitor
 {
     Q_OBJECT
     Notifier *m_notifier;
-    QHash<QString, KPeople::AbstractContact::Ptr> m_contactUriHash;
+    QMap<QString, KPeople::AbstractContact::Ptr> m_contactUriMap;
 
 public:
     KPeopleSink();
     virtual ~KPeopleSink();
+
+    QMap<QString, KPeople::AbstractContact::Ptr> contacts() override;
 
 public slots:
     void initialSinkContactstoKpeople();
