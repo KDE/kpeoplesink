@@ -91,7 +91,7 @@ public:
 
         else if (key == AllPhoneNumbersProperty) {
             QVariantList numbers;
-            Q_FOREACH (const KContacts::PhoneNumber &phoneNumber, m_addressee.phoneNumbers()) {
+            for (const KContacts::PhoneNumber &phoneNumber : m_addressee.phoneNumbers()) {
                 numbers << phoneNumber.number();
             }
             return numbers;
@@ -146,7 +146,7 @@ void KPeopleSink::initialSinkContactstoKpeople()
 {
     // fetch all the addressbooks synced by sink
     const QList<Addressbook> sinkAdressbooks = Sink::Store::read<Addressbook>(Sink::Query());
-    Q_FOREACH (const Addressbook sinkAddressbook, sinkAdressbooks) {
+    for (const Addressbook &sinkAddressbook : sinkAdressbooks) {
         // to get resourceId
         QByteArray resourceId = sinkAddressbook.resourceInstanceIdentifier();
 
@@ -160,7 +160,7 @@ void KPeopleSink::initialSinkContactstoKpeople()
 
         // fetch all the contacts synced by sink
         const QList<Contact> sinkContacts = Sink::Store::read<Contact>(Sink::Query().resourceFilter(resourceId));
-        Q_FOREACH (const Contact sinkContact, sinkContacts) {
+        for (const Contact &sinkContact : sinkContacts) {
             // get uri
             const QString uri = getUri(sinkContact, resourceId);
 
@@ -177,7 +177,7 @@ void KPeopleSink::processRecentlySyncedContacts(QByteArray resourceId)
 {
     const QList<Contact> sinkContacts = Sink::Store::read<Contact>(Sink::Query().resourceFilter(resourceId));
     QSet<QString> contactUri;
-    Q_FOREACH (const Contact sinkContact, sinkContacts) {
+    for (const Contact &sinkContact : sinkContacts) {
         // get uri
         const QString uri = getUri(sinkContact, resourceId);
         contactUri.insert(uri);
