@@ -17,6 +17,7 @@ include(KDEInstallDirs)
 include(KDECMakeSettings)
 include(KDECompilerSettings NO_POLICY_SCOPE)
 include(ECMAddTests)
+include(KDEClangFormat)
 
 ################# Find dependencies #################
 
@@ -41,3 +42,8 @@ configure_package_config_file(
 install(FILES  "${CMAKE_CURRENT_BINARY_DIR}/KF5PeopleSinkConfig.cmake"
         DESTINATION "${CMAKECONFIG_INSTALL_DIR}"
         COMPONENT Devel )
+
+
+# add clang-format target for all our real source files
+file(GLOB_RECURSE ALL_CLANG_FORMAT_SOURCE_FILES *.cpp *.h)
+kde_clang_format(${ALL_CLANG_FORMAT_SOURCE_FILES})
