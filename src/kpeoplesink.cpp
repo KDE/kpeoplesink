@@ -43,8 +43,19 @@ public:
 
     bool addContact(const QVariantMap &properties)
     {
-        // code logic to be added
-        return false;
+        const QList<Addressbook> sinkAdressbooks = Sink::Store::read<Addressbook>(Sink::Query());
+        // get resourceId
+        QByteArray resourceId = sinkAdressbooks.first().resourceInstanceIdentifier();
+        auto contact = ApplicationDomainType::createEntity<Contact>(resourceId);
+
+        contact.setVcard(properties.value("vcard").toByteArray());
+        qDebug()<<contact.getVcard();
+        contact.setResource(resourceId);
+        contact.setAddressbook(sinkAdressbooks.first());
+
+        Sink::Store::create<Contact>(contact).exec();
+
+        return true;
     }
     bool deleteContact(const QString &uri)
     {
