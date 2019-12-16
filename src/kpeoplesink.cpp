@@ -44,12 +44,13 @@ public:
     bool addContact(const QVariantMap &properties)
     {
         const QList<Addressbook> sinkAdressbooks = Sink::Store::read<Addressbook>(Sink::Query());
+        QByteArray vcard = properties.value("vcard").toByteArray();
+
         // get resourceId
         QByteArray resourceId = sinkAdressbooks.first().resourceInstanceIdentifier();
         auto contact = ApplicationDomainType::createEntity<Contact>(resourceId);
 
-        contact.setVcard(properties.value("vcard").toByteArray());
-        qDebug()<<contact.getVcard();
+        contact.setVcard(vcard);
         contact.setResource(resourceId);
         contact.setAddressbook(sinkAdressbooks.first());
 
@@ -58,8 +59,19 @@ public:
         return true;
     }
     bool deleteContact(const QString &uri)
-    {
-        // code logic to be added
+    {        
+        QByteArray resourceId = uri.mid(7, 38).toUtf8();
+        QString uid = uri.mid(46);
+        qDebug()<<resourceId<<uid;
+
+        const QList<Contact> contacts = Sink::Store::read<Contact>(Sink::Query().resourceFilter(resourceId));
+        for (const Contact &contact : contacts){
+            QString uid1 = contact.getUid();
+            if(uid == uid1){
+                Sink::Store::remove<Contact>(contact).exec();
+                return true;
+            }
+        }
         return false;
     }
 
@@ -226,13 +238,11 @@ QString KPeopleSink::getUri(Contact sinkContact, QByteArray resourceId)
 {
     // to get uid of contact
     QString uid = sinkContact.getUid();
-    // to get accountId of contact
-    auto resource = Store::readOne<SinkResource>(Sink::Query().filter(resourceId));
-    QString accountId = resource.getAccount();
     // create uri for sink contact
-    QString uri = "sink://" + accountId + "/" + uid;
+    QString uri = "sink://" + resourceId + "/" + uid;
     return uri;
 }
+
 
 QMap<QString, AbstractContact::Ptr> KPeopleSink::contacts()
 {
