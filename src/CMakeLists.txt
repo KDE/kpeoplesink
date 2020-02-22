@@ -1,4 +1,7 @@
 kcoreaddons_add_plugin(KPeopleSink SOURCES kpeoplesink.cpp JSON "kpeoplesink.json" INSTALL_NAMESPACE "kpeople/datasource")
+
+kde_enable_exceptions(KPeopleSink)
+
 target_link_libraries(
     KPeopleSink 
     Qt5::Network
