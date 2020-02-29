@@ -275,7 +275,6 @@ AllContactsMonitor *KPeopleSinkDataSource::createAllContactsMonitor()
     return new KPeopleSink();
 }
 
-K_PLUGIN_FACTORY_WITH_JSON(KPeopleSinkDataSourceFactory, "kpeoplesink.json", registerPlugin<KPeopleSinkDataSource>();)
-K_EXPORT_PLUGIN(KPeopleSinkDataSourceFactory("kpeoplesink"))
+K_PLUGIN_CLASS_WITH_JSON(KPeopleSinkDataSource, "kpeoplesink.json")
 
 #include "kpeoplesink.moc"
