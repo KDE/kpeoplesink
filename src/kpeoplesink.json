@@ -2,11 +2,8 @@
     "Encoding": "UTF-8", 
     "KPlugin": {
         "EnabledByDefault": true, 
-        "Id": "SinkProvider", 
+        "Id": "kpeople_sink",
         "License": "LGPL", 
-        "ServiceTypes": [
-            "KPeople/DataSource"
-        ], 
         "Version": "0.1"
     }
 }

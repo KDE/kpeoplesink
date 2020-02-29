@@ -3,9 +3,10 @@ set(CMAKE_CXX_STANDARD 14)
 
 project(KPeopleSink)
 
-################# set KDE specific information #################
+set(QT5_REQUIRED_VERSION 5.12)
+set(KF5_REQUIRED_VERSION 5.60)
 
-find_package(ECM 1.0 REQUIRED NO_MODULE)
+find_package(ECM ${KF5_REQUIRED_VERSION} REQUIRED NO_MODULE)
 set(CMAKE_MODULE_PATH ${ECM_MODULE_PATH})
 
 include(ECMSetupVersion)
@@ -19,16 +20,11 @@ include(KDECompilerSettings NO_POLICY_SCOPE)
 include(ECMAddTests)
 include(KDEClangFormat)
 
-################# Find dependencies #################
-
-find_package(Qt5 "5.2" REQUIRED COMPONENTS Widgets)
-find_package(KF5 "5.8" REQUIRED COMPONENTS CoreAddons People)
+find_package(Qt5 ${QT5_REQUIRED_VERSION} REQUIRED COMPONENTS Core Widgets)
+find_package(KF5 ${KF5_REQUIRED_VERSION} REQUIRED COMPONENTS CoreAddons People Contacts)
 find_package(Qt5 ${QT_MIN_VERSION} REQUIRED NO_MODULE COMPONENTS Network)
 find_package(Sink CONFIG REQUIRED)
 find_package(KAsync CONFIG REQUIRED)
-find_package(KF5Contacts REQUIRED)
-
-################# build and install #################
 
 add_subdirectory(src)
 
@@ -42,7 +38,6 @@ configure_package_config_file(
 install(FILES  "${CMAKE_CURRENT_BINARY_DIR}/KF5PeopleSinkConfig.cmake"
         DESTINATION "${CMAKECONFIG_INSTALL_DIR}"
         COMPONENT Devel )
-
 
 # add clang-format target for all our real source files
 file(GLOB_RECURSE ALL_CLANG_FORMAT_SOURCE_FILES *.cpp *.h)
