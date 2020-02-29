@@ -19,9 +19,11 @@
 #ifndef KPEOPLESINK_H
 #define KPEOPLESINK_H
 
+#include <QSet>
+
 #include <KPeopleBackend/AbstractContact>
 #include <KPeopleBackend/AllContactsMonitor>
-#include <QSet>
+
 #include <sink/notification.h>
 #include <sink/notifier.h>
 #include <sink/store.h>

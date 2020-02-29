@@ -17,15 +17,18 @@
  *************************************************************************************/
 
 #include "kpeoplesink.h"
+
+#include <QDebug>
+#include <QImage>
+#include <QTimer>
+
 #include <KContacts/Picture>
 #include <KContacts/VCardConverter>
 #include <KPeopleBackend/AbstractEditableContact>
 #include <KPeopleBackend/BasePersonsDataSource>
 #include <KPluginFactory>
 #include <KPluginLoader>
-#include <QDebug>
-#include <QImage>
-#include <QTimer>
+
 #include <sink/notification.h>
 #include <sink/notifier.h>
 #include <sink/store.h>
