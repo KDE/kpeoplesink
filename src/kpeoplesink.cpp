@@ -26,140 +26,18 @@
 #include <KContacts/VCardConverter>
 #include <KPeopleBackend/AbstractEditableContact>
 #include <KPeopleBackend/BasePersonsDataSource>
-#include <KPluginFactory>
 #include <KPluginLoader>
 
 #include <sink/notification.h>
 #include <sink/notifier.h>
 #include <sink/store.h>
 
+#include "sinkdatasource.h"
+#include "sinkcontact.h"
+
 using namespace KPeople;
 using namespace Sink;
 using namespace Sink::ApplicationDomain;
-
-class KPeopleSinkDataSource : public KPeople::BasePersonsDataSourceV2
-{
-public:
-    KPeopleSinkDataSource(QObject *parent, const QVariantList &data);
-    virtual ~KPeopleSinkDataSource();
-    QString sourcePluginId() const override;
-
-    bool addContact(const QVariantMap &properties)
-    {
-        const QList<Addressbook> sinkAdressbooks = Sink::Store::read<Addressbook>(Sink::Query());
-        QByteArray vcard = properties.value("vcard").toByteArray();
-
-        // get resourceId
-        QByteArray resourceId = sinkAdressbooks.first().resourceInstanceIdentifier();
-        auto contact = ApplicationDomainType::createEntity<Contact>(resourceId);
-
-        contact.setVcard(vcard);
-        contact.setResource(resourceId);
-        contact.setAddressbook(sinkAdressbooks.first());
-
-        Sink::Store::create<Contact>(contact).exec();
-
-        return true;
-    }
-    bool deleteContact(const QString &uri)
-    {
-        QByteArray resourceId = uri.mid(7, 38).toUtf8();
-        QString uid = uri.mid(46);
-        qDebug() << resourceId << uid;
-
-        const QList<Contact> contacts = Sink::Store::read<Contact>(Sink::Query().resourceFilter(resourceId));
-        for (const Contact &contact : contacts) {
-            QString uid1 = contact.getUid();
-            if (uid == uid1) {
-                Sink::Store::remove<Contact>(contact).exec();
-                return true;
-            }
-        }
-        return false;
-    }
-
-    KPeople::AllContactsMonitor *createAllContactsMonitor() override;
-};
-
-class SinkContact : public KPeople::AbstractEditableContact
-{
-public:
-    SinkContact()
-    {
-    }
-    SinkContact(const Contact &contact)
-        : m_contact(contact)
-    {
-        setAddressee(contact);
-    }
-
-    QVariant customProperty(const QString &key) const override
-    {
-        QVariant ret;
-        if (key == NameProperty) {
-            const QString name = m_addressee.realName();
-            if (!name.isEmpty()) {
-                return name;
-            }
-            if (!m_addressee.phoneNumbers().isEmpty()) {
-                return m_addressee.phoneNumbers().at(0).number();
-            }
-            if (!m_addressee.preferredEmail().isEmpty()) {
-                return m_addressee.preferredEmail();
-            }
-            return QVariant();
-        } else if (key == VCardProperty) {
-            return m_contact.getVcard();
-        } else if (key == PictureProperty) {
-            return m_addressee.photo().data();
-        } else if (key == EmailProperty)
-            return m_addressee.preferredEmail();
-
-        else if (key == AllPhoneNumbersProperty) {
-            QVariantList numbers;
-            for (const KContacts::PhoneNumber &phoneNumber : m_addressee.phoneNumbers()) {
-                numbers << phoneNumber.number();
-            }
-            return numbers;
-        } else if (key == PhoneNumberProperty) {
-            return m_addressee.phoneNumbers().isEmpty() ? QVariant() : m_addressee.phoneNumbers().at(0).number();
-        }
-
-        return ret;
-    }
-
-    void setAddressee(const Contact &contact)
-    {
-        m_contact = contact;
-        KContacts::VCardConverter converter;
-        m_addressee = converter.parseVCard(contact.getVcard());
-    }
-    Contact contact() const
-    {
-        return m_contact;
-    }
-
-    bool setCustomProperty(const QString &key, const QVariant &value) override
-    {
-        if (key == VCardProperty) {
-            const QByteArray rawVCard = value.toByteArray();
-            m_contact.setVcard(rawVCard);
-
-            KContacts::VCardConverter converter;
-            m_addressee = converter.parseVCard(rawVCard);
-            // 1. fetch resourceId of contact
-            QByteArray resourceID = m_contact.resourceInstanceIdentifier();
-            // 2. call modify function
-            Sink::Store::modify<Contact>(Sink::Query().resourceFilter(resourceID), m_contact);
-            return true;
-        }
-        return false;
-    }
-
-private:
-    Contact m_contact;
-    KContacts::Addressee m_addressee;
-};
 
 KPeopleSink::KPeopleSink()
     : KPeople::AllContactsMonitor()
@@ -254,27 +132,3 @@ QMap<QString, AbstractContact::Ptr> KPeopleSink::contacts()
 KPeopleSink::~KPeopleSink()
 {
 }
-
-KPeopleSinkDataSource::KPeopleSinkDataSource(QObject *parent, const QVariantList &args)
-    : BasePersonsDataSourceV2(parent)
-{
-    Q_UNUSED(args);
-}
-
-KPeopleSinkDataSource::~KPeopleSinkDataSource()
-{
-}
-
-QString KPeopleSinkDataSource::sourcePluginId() const
-{
-    return QStringLiteral("sink");
-}
-
-AllContactsMonitor *KPeopleSinkDataSource::createAllContactsMonitor()
-{
-    return new KPeopleSink();
-}
-
-K_PLUGIN_CLASS_WITH_JSON(KPeopleSinkDataSource, "kpeoplesink.json")
-
-#include "kpeoplesink.moc"
