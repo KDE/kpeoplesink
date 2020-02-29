@@ -59,15 +59,15 @@ public:
         return true;
     }
     bool deleteContact(const QString &uri)
-    {        
+    {
         QByteArray resourceId = uri.mid(7, 38).toUtf8();
         QString uid = uri.mid(46);
-        qDebug()<<resourceId<<uid;
+        qDebug() << resourceId << uid;
 
         const QList<Contact> contacts = Sink::Store::read<Contact>(Sink::Query().resourceFilter(resourceId));
-        for (const Contact &contact : contacts){
+        for (const Contact &contact : contacts) {
             QString uid1 = contact.getUid();
-            if(uid == uid1){
+            if (uid == uid1) {
                 Sink::Store::remove<Contact>(contact).exec();
                 return true;
             }
@@ -242,7 +242,6 @@ QString KPeopleSink::getUri(Contact sinkContact, QByteArray resourceId)
     QString uri = "sink://" + resourceId + "/" + uid;
     return uri;
 }
-
 
 QMap<QString, AbstractContact::Ptr> KPeopleSink::contacts()
 {
