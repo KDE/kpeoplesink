@@ -17,27 +17,27 @@
  *************************************************************************************/
 #include "sync-contacts.h"
 
-#include <sink/store.h>
-#include <sink/secretstore.h>
 #include <sink/resourcecontrol.h>
+#include <sink/secretstore.h>
+#include <sink/store.h>
 
-#include <Accounts/Service>
-#include <Accounts/Manager>
 #include <Accounts/Account>
 #include <Accounts/AccountService>
+#include <Accounts/Manager>
+#include <Accounts/Service>
 
-#include "getcredentialsjob.h"
 #include "core.h"
+#include "getcredentialsjob.h"
 
 SyncContacts::SyncContacts()
 {
 }
 
 SyncContacts::SyncContacts(quint32 accountId, QString server, QString userName, QString password)
-    :   m_accountId(accountId), 
-        m_server(server),
-        m_userName(userName),
-        m_password(password)
+    : m_accountId(accountId)
+    , m_server(server)
+    , m_userName(userName)
+    , m_password(password)
 {
 }
 
@@ -45,14 +45,13 @@ SyncContacts::~SyncContacts()
 {
 }
 
-void SyncContacts::createResource() {
-
+void SyncContacts::createResource()
+{
     Accounts::Account *account = KAccounts::accountsManager()->account(m_accountId);
 
     const Accounts::ServiceList services = account->services(QStringLiteral("dav-contacts"));
 
     for (const auto &service : services) {
-
         account->selectService(service);
 
         QString rid = account->value("sink/resourceId").toString();
@@ -66,7 +65,7 @@ void SyncContacts::createResource() {
             rid = resource.identifier();
 
             Sink::Store::create(resource).exec().waitForFinished();
-            qDebug()<<"***CONTACT CREATED***";
+            qDebug() << "***CONTACT CREATED***";
 
             account->setValue("sink/resourceId", rid);
             account->syncAndBlock();
@@ -79,24 +78,24 @@ void SyncContacts::createResource() {
 
 void SyncContacts::synchContact(QByteArray rid)
 {
-    //start resourcecontrol
+    // start resourcecontrol
     Sink::ResourceControl::start(rid);
 
-    //Sync Addressbooks
+    // Sync Addressbooks
     Sink::SyncScope scope1;
     scope1.setType<Sink::ApplicationDomain::Addressbook>();
     scope1.resourceFilter(rid);
     Sink::Store::synchronize(scope1).exec().waitForFinished();
 
-    //flush
+    // flush
     Sink::ResourceControl::flushMessageQueue(rid).exec().waitForFinished();
 
-    //Sync Contacts
+    // Sync Contacts
     Sink::SyncScope scope2;
     scope2.setType<Sink::ApplicationDomain::Contact>();
     scope2.resourceFilter(rid);
     Sink::Store::synchronize(scope2).exec().waitForFinished();
 
-    //flush
+    // flush
     Sink::ResourceControl::flushMessageQueue(rid).exec().waitForFinished();
 }

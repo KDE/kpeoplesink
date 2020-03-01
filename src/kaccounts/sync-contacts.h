@@ -36,8 +36,8 @@ public Q_SLOTS:
     void synchContact(QByteArray rid);
 
 private:
-    quint32 m_accountId; 
-    QUrl m_server; 
-    QString m_userName; 
+    quint32 m_accountId;
+    QUrl m_server;
+    QString m_userName;
     QString m_password;
 };

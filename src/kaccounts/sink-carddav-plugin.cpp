@@ -18,20 +18,20 @@
 
 #include "sink-carddav-plugin.h"
 
-#include <QTimer>
 #include <QDebug>
+#include <QTimer>
 #include <QUrl>
 
-#include <KPluginFactory>
 #include <KJob>
+#include <KPluginFactory>
 
-#include <Accounts/Service>
-#include <Accounts/Manager>
 #include <Accounts/Account>
 #include <Accounts/AccountService>
+#include <Accounts/Manager>
+#include <Accounts/Service>
 
-#include <GetCredentialsJob>
 #include <Core>
+#include <GetCredentialsJob>
 
 #include "sync-contacts.h"
 
@@ -41,7 +41,7 @@ KAccountsCardDavSinkPlugin::KAccountsCardDavSinkPlugin(QObject *parent, const QV
     : KAccountsDPlugin(parent, args)
 {
     m_sinkTimer = new QTimer(this);
-    m_sinkTimer->setInterval(1000 * 60 *30);
+    m_sinkTimer->setInterval(1000 * 60 * 30);
 
     connect(m_sinkTimer, &QTimer::timeout, this, &KAccountsCardDavSinkPlugin::syncAccounts);
 
@@ -55,9 +55,9 @@ KAccountsCardDavSinkPlugin::~KAccountsCardDavSinkPlugin()
 void KAccountsCardDavSinkPlugin::syncAccounts()
 {
     Accounts::AccountIdList accountList = KAccounts::accountsManager()->accountList(QStringLiteral("dav-contacts"));
-    
+
     Q_FOREACH (const quint32 accountId, accountList) {
-        qDebug() << "Account IDs : "<<accountId;
+        qDebug() << "Account IDs : " << accountId;
         getCredentials(accountId);
     }
 }
@@ -91,7 +91,6 @@ void KAccountsCardDavSinkPlugin::onServiceEnabled(const Accounts::AccountId acco
     if (service.serviceType() == QLatin1String("dav-contacts")) {
         getCredentials(accountId);
     }
-
 }
 
 void KAccountsCardDavSinkPlugin::getCredentials(const Accounts::AccountId accountId)
@@ -103,7 +102,7 @@ void KAccountsCardDavSinkPlugin::getCredentials(const Accounts::AccountId accoun
 
 void KAccountsCardDavSinkPlugin::getAccountDetails(KJob *job)
 {
-    GetCredentialsJob *credentialsJob = qobject_cast<GetCredentialsJob*>(job);
+    GetCredentialsJob *credentialsJob = qobject_cast<GetCredentialsJob *>(job);
     job->deleteLater();
 
     const QVariantMap &data = credentialsJob->credentialsData();
@@ -116,7 +115,7 @@ void KAccountsCardDavSinkPlugin::getAccountDetails(KJob *job)
     const QString &userName = data.value("AccountUsername").toString();
     const QString &password = data.value("Secret").toString();
 
-    qDebug()<<"username : "<<userName<<"\npassword : "<<password;
+    qDebug() << "username : " << userName << "\npassword : " << password;
 
     SyncContacts *synccontact = new SyncContacts(credentialsJob->accountId(), carddavUrl.toString(), userName, password);
     synccontact->createResource();
