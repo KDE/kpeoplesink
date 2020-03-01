@@ -105,11 +105,7 @@ void KPeopleSink::toRemoveContact(QSet<QString> contactUri)
 
 QString KPeopleSink::getUri(Sink::ApplicationDomain::Contact sinkContact, QByteArray resourceId)
 {
-    // to get uid of contact
-    QString uid = sinkContact.getUid();
-    // create uri for sink contact
-    QString uri = "sink://" + resourceId + "/" + uid;
-    return uri;
+    return QStringLiteral("sink://%1/%2").arg(resourceId, sinkContact.getUid());
 }
 
 QMap<QString, KPeople::AbstractContact::Ptr> KPeopleSink::contacts()
