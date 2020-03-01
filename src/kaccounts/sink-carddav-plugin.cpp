@@ -112,10 +112,13 @@ void KAccountsCardDavSinkPlugin::getAccountDetails(KJob *job)
 
 void KAccountsCardDavSinkPlugin::onAccountRemoved(const Accounts::AccountId accountId)
 {
+    Q_UNUSED(accountId)
 }
 
 void KAccountsCardDavSinkPlugin::onServiceDisabled(const Accounts::AccountId accountId, const Accounts::Service &service)
 {
+    Q_UNUSED(accountId)
+    Q_UNUSED(service)
 }
 
 #include "sink-carddav-plugin.moc"
