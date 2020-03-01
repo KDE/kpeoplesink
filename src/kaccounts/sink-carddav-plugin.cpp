@@ -40,11 +40,6 @@ K_PLUGIN_CLASS_WITH_JSON(KAccountsCardDavSinkPlugin, "sink-carddav.json")
 KAccountsCardDavSinkPlugin::KAccountsCardDavSinkPlugin(QObject *parent, const QVariantList &args)
     : KAccountsDPlugin(parent, args)
 {
-    m_sinkTimer = new QTimer(this);
-    m_sinkTimer->setInterval(1000 * 60 * 30);
-
-    connect(m_sinkTimer, &QTimer::timeout, this, &KAccountsCardDavSinkPlugin::syncAccounts);
-
     syncAccounts();
 }
 

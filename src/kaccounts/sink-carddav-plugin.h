@@ -43,9 +43,6 @@ private Q_SLOTS:
     void getCredentials(const Accounts::AccountId accountId);
     void getAccountDetails(KJob *job);
     void syncAccounts();
-
-private:
-    QTimer *m_sinkTimer;
 };
 
 #endif // KACCOUNTSCARDDAVPLUGIN_H
