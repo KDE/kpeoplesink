@@ -18,13 +18,13 @@
 
 #include "sinkcontact.h"
 
-SinkContact::SinkContact(const Sink::ApplicationDomain::Contact& contact)
+SinkContact::SinkContact(const Sink::ApplicationDomain::Contact &contact)
     : m_contact(contact)
 {
     setAddressee(contact);
 }
 
-QVariant SinkContact::customProperty(const QString& key) const
+QVariant SinkContact::customProperty(const QString &key) const
 {
     QVariant ret;
     if (key == NameProperty) {
@@ -59,7 +59,7 @@ QVariant SinkContact::customProperty(const QString& key) const
     return ret;
 }
 
-void SinkContact::setAddressee(const Sink::ApplicationDomain::Contact& contact)
+void SinkContact::setAddressee(const Sink::ApplicationDomain::Contact &contact)
 {
     m_contact = contact;
     KContacts::VCardConverter converter;
@@ -71,7 +71,7 @@ Sink::ApplicationDomain::Contact SinkContact::contact() const
     return m_contact;
 }
 
-bool SinkContact::setCustomProperty(const QString& key, const QVariant& value)
+bool SinkContact::setCustomProperty(const QString &key, const QVariant &value)
 {
     if (key == VCardProperty) {
         const QByteArray rawVCard = value.toByteArray();

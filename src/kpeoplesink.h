@@ -24,32 +24,27 @@
 #include <KPeopleBackend/AbstractContact>
 #include <KPeopleBackend/AllContactsMonitor>
 
-#include <sink/notification.h>
+#include <sink/applicationdomaintype.h>
 #include <sink/notifier.h>
-#include <sink/store.h>
-
-using namespace Sink;
-using namespace Sink::ApplicationDomain;
 
 class Q_DECL_EXPORT KPeopleSink : public KPeople::AllContactsMonitor
 {
     Q_OBJECT
-    Notifier *m_notifier;
+    Sink::Notifier *m_notifier;
     QMap<QString, KPeople::AbstractContact::Ptr> m_contactUriMap;
 
 public:
-    KPeopleSink();
-    virtual ~KPeopleSink();
+    explicit KPeopleSink();
 
     QMap<QString, KPeople::AbstractContact::Ptr> contacts() override;
 
-public slots:
+public Q_SLOTS:
     void initialSinkContactstoKpeople();
     void processRecentlySyncedContacts(QByteArray resourceId);
     void toRemoveContact(QSet<QString> contactUri);
 
 private:
-    QString getUri(Contact sinkContact, QByteArray resourceId);
+    QString getUri(Sink::ApplicationDomain::Contact sinkContact, QByteArray resourceId);
 };
 
 #endif

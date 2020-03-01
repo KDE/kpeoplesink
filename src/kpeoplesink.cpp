@@ -19,25 +19,10 @@
 #include "kpeoplesink.h"
 
 #include <QDebug>
-#include <QImage>
 #include <QTimer>
 
-#include <KContacts/Picture>
-#include <KContacts/VCardConverter>
-#include <KPeopleBackend/AbstractEditableContact>
-#include <KPeopleBackend/BasePersonsDataSource>
-#include <KPluginLoader>
-
-#include <sink/notification.h>
-#include <sink/notifier.h>
-#include <sink/store.h>
-
-#include "sinkdatasource.h"
 #include "sinkcontact.h"
-
-using namespace KPeople;
-using namespace Sink;
-using namespace Sink::ApplicationDomain;
+#include "sinkdatasource.h"
 
 KPeopleSink::KPeopleSink()
     : KPeople::AllContactsMonitor()
@@ -55,9 +40,9 @@ void KPeopleSink::initialSinkContactstoKpeople()
         QByteArray resourceId = sinkAddressbook.resourceInstanceIdentifier();
 
         // set notifer
-        m_notifier = new Notifier(resourceId);
+        m_notifier = new Sink::Notifier(resourceId);
         m_notifier->registerHandler([=](const Sink::Notification &notification) {
-            if (notification.type == Notification::Info && notification.code == SyncStatus::SyncSuccess) {
+            if (notification.type == Sink::Notification::Info && notification.code == SyncStatus::SyncSuccess) {
                 processRecentlySyncedContacts(resourceId);
             }
         });
@@ -103,7 +88,7 @@ void KPeopleSink::processRecentlySyncedContacts(QByteArray resourceId)
 
 void KPeopleSink::toRemoveContact(QSet<QString> contactUri)
 {
-    QMapIterator<QString, AbstractContact::Ptr> i(m_contactUriMap);
+    QMapIterator<QString, KPeople::AbstractContact::Ptr> i(m_contactUriMap);
     while (i.hasNext()) {
         i.next();
         QString uri = i.key();
@@ -115,7 +100,7 @@ void KPeopleSink::toRemoveContact(QSet<QString> contactUri)
     }
 }
 
-QString KPeopleSink::getUri(Contact sinkContact, QByteArray resourceId)
+QString KPeopleSink::getUri(Sink::ApplicationDomain::Contact sinkContact, QByteArray resourceId)
 {
     // to get uid of contact
     QString uid = sinkContact.getUid();
@@ -124,11 +109,7 @@ QString KPeopleSink::getUri(Contact sinkContact, QByteArray resourceId)
     return uri;
 }
 
-QMap<QString, AbstractContact::Ptr> KPeopleSink::contacts()
+QMap<QString, KPeople::AbstractContact::Ptr> KPeopleSink::contacts()
 {
     return m_contactUriMap;
-}
-
-KPeopleSink::~KPeopleSink()
-{
 }

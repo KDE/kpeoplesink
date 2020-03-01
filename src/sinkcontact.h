@@ -20,10 +20,10 @@
 
 #include <QImage>
 
-#include <KPeopleBackend/AbstractEditableContact>
-#include <KContacts/PhoneNumber>
 #include <KContacts/Addressee>
+#include <KContacts/PhoneNumber>
 #include <KContacts/VCardConverter>
+#include <KPeopleBackend/AbstractEditableContact>
 
 #include <sink/notification.h>
 #include <sink/notifier.h>
