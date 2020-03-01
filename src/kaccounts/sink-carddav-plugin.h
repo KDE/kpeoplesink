@@ -31,7 +31,6 @@ class KAccountsCardDavSinkPlugin : public KAccountsDPlugin
 
 public:
     KAccountsCardDavSinkPlugin(QObject *parent, const QVariantList &args);
-    ~KAccountsCardDavSinkPlugin();
 
 public Q_SLOTS:
     void onAccountCreated(const Accounts::AccountId accountId, const Accounts::ServiceList &serviceList);

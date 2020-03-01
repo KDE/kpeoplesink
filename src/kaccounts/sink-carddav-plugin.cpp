@@ -43,10 +43,6 @@ KAccountsCardDavSinkPlugin::KAccountsCardDavSinkPlugin(QObject *parent, const QV
     syncAccounts();
 }
 
-KAccountsCardDavSinkPlugin::~KAccountsCardDavSinkPlugin()
-{
-}
-
 void KAccountsCardDavSinkPlugin::syncAccounts()
 {
     Accounts::AccountIdList accountList = KAccounts::accountsManager()->accountList(QStringLiteral("dav-contacts"));
