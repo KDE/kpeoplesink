@@ -21,6 +21,9 @@
 #include <QDebug>
 #include <QTimer>
 
+#include <sink/notification.h>
+#include <sink/store.h>
+
 #include "sinkcontact.h"
 #include "sinkdatasource.h"
 
@@ -34,22 +37,22 @@ KPeopleSink::KPeopleSink()
 void KPeopleSink::initialSinkContactstoKpeople()
 {
     // fetch all the addressbooks synced by sink
-    const QList<Addressbook> sinkAdressbooks = Sink::Store::read<Addressbook>(Sink::Query());
-    for (const Addressbook &sinkAddressbook : sinkAdressbooks) {
+    const QList<Sink::ApplicationDomain::Addressbook> sinkAdressbooks = Sink::Store::read<Sink::ApplicationDomain::Addressbook>(Sink::Query());
+    for (const Sink::ApplicationDomain::Addressbook &sinkAddressbook : sinkAdressbooks) {
         // to get resourceId
         QByteArray resourceId = sinkAddressbook.resourceInstanceIdentifier();
 
         // set notifer
         m_notifier = new Sink::Notifier(resourceId);
         m_notifier->registerHandler([=](const Sink::Notification &notification) {
-            if (notification.type == Sink::Notification::Info && notification.code == SyncStatus::SyncSuccess) {
+            if (notification.type == Sink::Notification::Info && notification.code == Sink::ApplicationDomain::SyncSuccess) {
                 processRecentlySyncedContacts(resourceId);
             }
         });
 
         // fetch all the contacts synced by sink
-        const QList<Contact> sinkContacts = Sink::Store::read<Contact>(Sink::Query().resourceFilter(resourceId));
-        for (const Contact &sinkContact : sinkContacts) {
+        const QList<Sink::ApplicationDomain::Contact> sinkContacts = Sink::Store::read<Sink::ApplicationDomain::Contact>(Sink::Query().resourceFilter(resourceId));
+        for (const Sink::ApplicationDomain::Contact &sinkContact : sinkContacts) {
             // get uri
             const QString uri = getUri(sinkContact, resourceId);
 
@@ -64,9 +67,9 @@ void KPeopleSink::initialSinkContactstoKpeople()
 
 void KPeopleSink::processRecentlySyncedContacts(QByteArray resourceId)
 {
-    const QList<Contact> sinkContacts = Sink::Store::read<Contact>(Sink::Query().resourceFilter(resourceId));
+    const QList<Sink::ApplicationDomain::Contact> sinkContacts = Sink::Store::read<Sink::ApplicationDomain::Contact>(Sink::Query().resourceFilter(resourceId));
     QSet<QString> contactUri;
-    for (const Contact &sinkContact : sinkContacts) {
+    for (const Sink::ApplicationDomain::Contact &sinkContact : sinkContacts) {
         // get uri
         const QString uri = getUri(sinkContact, resourceId);
         contactUri.insert(uri);

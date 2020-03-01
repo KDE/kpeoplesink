@@ -24,10 +24,9 @@ class KPeopleSinkDataSource : public KPeople::BasePersonsDataSourceV2
 {
 public:
     KPeopleSinkDataSource(QObject *parent, const QVariantList &data);
-    virtual ~KPeopleSinkDataSource();
     QString sourcePluginId() const override;
 
-    bool addContact(const QVariantMap &properties);
-    bool deleteContact(const QString &uri);
+    bool addContact(const QVariantMap &properties) override;
+    bool deleteContact(const QString &uri) override;
     KPeople::AllContactsMonitor *createAllContactsMonitor() override;
 };

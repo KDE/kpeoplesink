@@ -36,10 +36,6 @@ KPeopleSinkDataSource::KPeopleSinkDataSource(QObject *parent, const QVariantList
     Q_UNUSED(args);
 }
 
-KPeopleSinkDataSource::~KPeopleSinkDataSource()
-{
-}
-
 bool KPeopleSinkDataSource::addContact(const QVariantMap &properties)
 {
     const QList<Addressbook> sinkAdressbooks = Sink::Store::read<Addressbook>(Sink::Query());

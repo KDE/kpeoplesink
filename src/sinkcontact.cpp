@@ -18,6 +18,10 @@
 
 #include "sinkcontact.h"
 
+#include <KContacts/VCardConverter>
+
+#include <sink/store.h>
+
 SinkContact::SinkContact(const Sink::ApplicationDomain::Contact &contact)
     : m_contact(contact)
 {
@@ -82,7 +86,7 @@ bool SinkContact::setCustomProperty(const QString &key, const QVariant &value)
         // 1. fetch resourceId of contact
         QByteArray resourceID = m_contact.resourceInstanceIdentifier();
         // 2. call modify function
-        Sink::Store::modify<Contact>(Sink::Query().resourceFilter(resourceID), m_contact);
+        Sink::Store::modify<Sink::ApplicationDomain::Contact>(Sink::Query().resourceFilter(resourceID), m_contact);
         return true;
     }
     return false;
