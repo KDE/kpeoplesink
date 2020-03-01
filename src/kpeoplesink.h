@@ -30,9 +30,6 @@
 class Q_DECL_EXPORT KPeopleSink : public KPeople::AllContactsMonitor
 {
     Q_OBJECT
-    Sink::Notifier *m_notifier;
-    QMap<QString, KPeople::AbstractContact::Ptr> m_contactUriMap;
-
 public:
     explicit KPeopleSink();
 
@@ -45,6 +42,9 @@ public Q_SLOTS:
 
 private:
     QString getUri(Sink::ApplicationDomain::Contact sinkContact, QByteArray resourceId);
+
+    Sink::Notifier *m_notifier;
+    QMap<QString, KPeople::AbstractContact::Ptr> m_contactUriMap;
 };
 
 #endif
