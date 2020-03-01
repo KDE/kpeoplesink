@@ -62,7 +62,6 @@ void KAccountsCardDavSinkPlugin::onAccountCreated(const Accounts::AccountId acco
     }
 
     for (const Accounts::Service &service : serviceList) {
-        account->selectService(service);
         if (service.serviceType() == QLatin1String("dav-contacts") && account->isEnabled()) {
             getCredentials(accountId);
         }
