@@ -52,7 +52,8 @@ QVariant SinkContact::customProperty(const QString &key) const
 
     else if (key == AllPhoneNumbersProperty) {
         QVariantList numbers;
-        for (const KContacts::PhoneNumber &phoneNumber : m_addressee.phoneNumbers()) {
+        const auto phoneNumbers = m_addressee.phoneNumbers();
+        for (const KContacts::PhoneNumber &phoneNumber : phoneNumbers) {
             numbers << phoneNumber.number();
         }
         return numbers;
