@@ -15,23 +15,16 @@
  *  License along with this library; if not, write to the Free Software              *
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
- 
-#include <sink/store.h>
+#pragma once
+
 #include <QObject>
 #include <QUrl>
 
-using namespace Sink;
-using namespace Sink::ApplicationDomain;
-using Sink::ApplicationDomain::SinkResource;
+#include <sink/store.h>
 
 class SyncContacts : public QObject
 {
     Q_OBJECT
-    quint32 m_accountId; 
-    QUrl m_server; 
-    QString m_userName; 
-    QString m_password;
-
 
 public:
     SyncContacts();
@@ -41,4 +34,10 @@ public:
 public Q_SLOTS:
     void createResource();
     void synchContact(QByteArray rid);
+
+private:
+    quint32 m_accountId; 
+    QUrl m_server; 
+    QString m_userName; 
+    QString m_password;
 };

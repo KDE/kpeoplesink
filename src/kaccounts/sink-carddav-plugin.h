@@ -19,14 +19,15 @@
 #ifndef KACCOUNTSCARDDAVSINKPLUGIN_H
 #define KACCOUNTSCARDDAVSINKPLUGIN_H
 
-#include <kaccountsdplugin.h>
-#include <KJob>
 #include <QTimer>
+
+#include <KJob>
+
+#include <KAccountsDPlugin>
 
 class KAccountsCardDavSinkPlugin : public KAccountsDPlugin
 {
     Q_OBJECT
-    QTimer *m_sinkTimer;
 
 public:
     KAccountsCardDavSinkPlugin(QObject *parent, const QVariantList &args);
@@ -43,6 +44,8 @@ private Q_SLOTS:
     void getAccountDetails(KJob *job);
     void syncAccounts();
 
+private:
+    QTimer *m_sinkTimer;
 };
 
 #endif // KACCOUNTSCARDDAVPLUGIN_H

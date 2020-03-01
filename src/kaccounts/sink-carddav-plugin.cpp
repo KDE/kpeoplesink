@@ -18,7 +18,9 @@
 
 #include "sink-carddav-plugin.h"
 
-#include "sync-contacts.h"
+#include <QTimer>
+#include <QDebug>
+#include <QUrl>
 
 #include <KPluginFactory>
 #include <KJob>
@@ -27,12 +29,11 @@
 #include <Accounts/Manager>
 #include <Accounts/Account>
 #include <Accounts/AccountService>
-#include <QTimer>
-#include <QDebug>
-#include <QUrl>
 
-#include "getcredentialsjob.h"
-#include "core.h"
+#include <GetCredentialsJob>
+#include <Core>
+
+#include "sync-contacts.h"
 
 K_PLUGIN_CLASS_WITH_JSON(KAccountsCardDavSinkPlugin, "sink-carddav.json")
 

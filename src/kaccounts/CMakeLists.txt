@@ -15,6 +15,6 @@ target_link_libraries(
     sink_carddav_plugin 
     Qt5::Core 
     KAccounts
-    sink
     KAsync
+    sink
     )

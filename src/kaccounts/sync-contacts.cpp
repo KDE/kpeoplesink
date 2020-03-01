@@ -15,14 +15,11 @@
  *  License along with this library; if not, write to the Free Software              *
  *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA   *
  *************************************************************************************/
+#include "sync-contacts.h"
 
 #include <sink/store.h>
 #include <sink/secretstore.h>
 #include <sink/resourcecontrol.h>
-#include "sync-contacts.h"
-#include <QDebug>
-#include <QUrl>
-#include <QUuid>
 
 #include <Accounts/Service>
 #include <Accounts/Manager>
@@ -68,7 +65,7 @@ void SyncContacts::createResource() {
             resource.setProperty("username", m_userName);
             rid = resource.identifier();
 
-            Store::create(resource).exec().waitForFinished();
+            Sink::Store::create(resource).exec().waitForFinished();
             qDebug()<<"***CONTACT CREATED***";
 
             account->setValue("sink/resourceId", rid);
@@ -87,9 +84,9 @@ void SyncContacts::synchContact(QByteArray rid)
 
     //Sync Addressbooks
     Sink::SyncScope scope1;
-    scope1.setType<Addressbook>();
+    scope1.setType<Sink::ApplicationDomain::Addressbook>();
     scope1.resourceFilter(rid);
-    Store::synchronize(scope1).exec().waitForFinished();
+    Sink::Store::synchronize(scope1).exec().waitForFinished();
 
     //flush
     Sink::ResourceControl::flushMessageQueue(rid).exec().waitForFinished();
@@ -98,7 +95,7 @@ void SyncContacts::synchContact(QByteArray rid)
     Sink::SyncScope scope2;
     scope2.setType<Sink::ApplicationDomain::Contact>();
     scope2.resourceFilter(rid);
-    Store::synchronize(scope2).exec().waitForFinished();
+    Sink::Store::synchronize(scope2).exec().waitForFinished();
 
     //flush
     Sink::ResourceControl::flushMessageQueue(rid).exec().waitForFinished();
