@@ -45,10 +45,9 @@ KAccountsCardDavSinkPlugin::KAccountsCardDavSinkPlugin(QObject *parent, const QV
 
 void KAccountsCardDavSinkPlugin::syncAccounts()
 {
-    Accounts::AccountIdList accountList = KAccounts::accountsManager()->accountList(QStringLiteral("dav-contacts"));
+    const Accounts::AccountIdList accountList = KAccounts::accountsManager()->accountList(QStringLiteral("dav-contacts"));
 
-    Q_FOREACH (const quint32 accountId, accountList) {
-        qDebug() << "Account IDs : " << accountId;
+    for (const quint32 accountId : accountList) {
         getCredentials(accountId);
     }
 }
@@ -62,7 +61,7 @@ void KAccountsCardDavSinkPlugin::onAccountCreated(const Accounts::AccountId acco
         return;
     }
 
-    Q_FOREACH (const Accounts::Service &service, serviceList) {
+    for (const Accounts::Service &service : serviceList) {
         account->selectService(service);
         if (service.serviceType() == QLatin1String("dav-contacts") && account->isEnabled()) {
             getCredentials(accountId);

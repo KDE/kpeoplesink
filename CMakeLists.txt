@@ -27,6 +27,8 @@ find_package(Sink CONFIG REQUIRED)
 find_package(KAsync CONFIG REQUIRED)
 find_package(KAccounts REQUIRED)
 
+add_definitions(-DQT_NO_FOREACH)
+
 add_subdirectory(src)
 
 set(CMAKECONFIG_INSTALL_DIR "${CMAKECONFIG_INSTALL_PREFIX}/KF5PeopleSink")
