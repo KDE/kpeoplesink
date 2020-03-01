@@ -1,0 +1,11 @@
+{
+    "KPlugin": {
+        "Description": "Sink contacts integration",
+        "EnabledByDefault": true,
+        "Icon": "",
+        "Id": "kaccounts_sink_contacts",
+        "License": "GPL",
+        "Name": "Sink contacts",
+        "Version": "0.1"
+    }
+}

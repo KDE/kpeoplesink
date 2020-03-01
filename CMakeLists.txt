@@ -25,6 +25,7 @@ find_package(KF5 ${KF5_REQUIRED_VERSION} REQUIRED COMPONENTS CoreAddons People C
 find_package(Qt5 ${QT_MIN_VERSION} REQUIRED NO_MODULE COMPONENTS Network)
 find_package(Sink CONFIG REQUIRED)
 find_package(KAsync CONFIG REQUIRED)
+find_package(KAccounts REQUIRED)
 
 add_subdirectory(src)
 
