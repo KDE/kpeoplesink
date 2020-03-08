@@ -2,6 +2,7 @@
     "KPlugin": {
         "Description": "Sink contacts integration",
         "Description[ca]": "Integració per als contactes del Sink",
+        "Description[fr]": "Intégration des contacts Sink",
         "Description[nl]": "Integratie van Sink-contactpersonen",
         "Description[pt]": "Integração com os contactos do Sink",
         "Description[sv]": "Integrering av Sink kontakter",
@@ -13,6 +14,7 @@
         "License": "GPL",
         "Name": "Sink contacts",
         "Name[ca]": "Contactes del Sink",
+        "Name[fr]": "Contacts Sink",
         "Name[nl]": "Sink-contactpersonen",
         "Name[pt]": "Contactos do Sink",
         "Name[sv]": "Sink kontakter",
