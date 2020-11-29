@@ -41,6 +41,9 @@ bool KPeopleSinkDataSource::addContact(const QVariantMap &properties)
     const QList<Addressbook> sinkAdressbooks = Sink::Store::read<Addressbook>(Sink::Query());
     QByteArray vcard = properties.value("vcard").toByteArray();
 
+    if (sinkAdressbooks.isEmpty()) {
+        return false;
+    }
     // get resourceId
     QByteArray resourceId = sinkAdressbooks.first().resourceInstanceIdentifier();
     auto contact = ApplicationDomainType::createEntity<Contact>(resourceId);
