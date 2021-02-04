@@ -42,6 +42,22 @@ void KPeopleSink::initialSinkContactstoKpeople()
         // to get resourceId
         QByteArray resourceId = sinkAddressbook.resourceInstanceIdentifier();
 
+        // fetch all the contacts synced by sink
+        const QList<Sink::ApplicationDomain::Contact> sinkContacts = Sink::Store::read<Sink::ApplicationDomain::Contact>(Sink::Query().resourceFilter(resourceId));
+        for (const Sink::ApplicationDomain::Contact &sinkContact : sinkContacts) {
+            // get uri
+            const QString uri = getUri(sinkContact, resourceId);
+
+            auto contact = m_contactUriMap.value(uri);
+            if (!contact) {
+                // add uri of contact to set
+                KPeople::AbstractContact::Ptr contact(new SinkContact(sinkContact));
+                m_contactUriMap.insert(uri, contact);
+
+                Q_EMIT contactAdded(uri, contact);
+            }
+        }
+
         // set notifer
         m_notifier = new Sink::Notifier(resourceId);
         m_notifier->registerHandler([=](const Sink::Notification &notification) {
@@ -49,19 +65,6 @@ void KPeopleSink::initialSinkContactstoKpeople()
                 processRecentlySyncedContacts(resourceId);
             }
         });
-
-        // fetch all the contacts synced by sink
-        const QList<Sink::ApplicationDomain::Contact> sinkContacts = Sink::Store::read<Sink::ApplicationDomain::Contact>(Sink::Query().resourceFilter(resourceId));
-        for (const Sink::ApplicationDomain::Contact &sinkContact : sinkContacts) {
-            // get uri
-            const QString uri = getUri(sinkContact, resourceId);
-
-            // add uri of contact to set
-            KPeople::AbstractContact::Ptr contact(new SinkContact(sinkContact));
-            m_contactUriMap.insert(uri, contact);
-
-            Q_EMIT contactAdded(uri, contact);
-        }
     }
 }
 
