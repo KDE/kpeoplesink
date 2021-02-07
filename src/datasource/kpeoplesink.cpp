@@ -43,7 +43,8 @@ void KPeopleSink::initialSinkContactstoKpeople()
         QByteArray resourceId = sinkAddressbook.resourceInstanceIdentifier();
 
         // fetch all the contacts synced by sink
-        const QList<Sink::ApplicationDomain::Contact> sinkContacts = Sink::Store::read<Sink::ApplicationDomain::Contact>(Sink::Query().resourceFilter(resourceId));
+        const QList<Sink::ApplicationDomain::Contact> sinkContacts =
+            Sink::Store::read<Sink::ApplicationDomain::Contact>(Sink::Query().resourceFilter(resourceId));
         for (const Sink::ApplicationDomain::Contact &sinkContact : sinkContacts) {
             // get uri
             const QString uri = getUri(sinkContact, resourceId);
