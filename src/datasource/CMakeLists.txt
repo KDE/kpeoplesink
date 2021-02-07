@@ -4,7 +4,6 @@ set(KPEOPLESINK_SRCS
     sinkcontact.cpp
 )
 
-
 kcoreaddons_add_plugin(KPeopleSink SOURCES ${KPEOPLESINK_SRCS} JSON "kpeoplesink.json" INSTALL_NAMESPACE "kpeople/datasource")
 
 kde_enable_exceptions(KPeopleSink)
