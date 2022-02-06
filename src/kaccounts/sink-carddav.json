@@ -1,6 +1,7 @@
 {
     "KPlugin": {
         "Description": "Sink contacts integration",
+        "Description[ar]": "تكامل مع متراسلو Sink",
         "Description[az]": "Sink kontaktlarının inteqrasiyası",
         "Description[ca@valencia]": "Integració dels contactes del Sink",
         "Description[ca]": "Integració dels contactes del Sink",
@@ -33,6 +34,7 @@
         "Id": "kaccounts_sink_contacts",
         "License": "GPL",
         "Name": "Sink contacts",
+        "Name[ar]": "متراسلو Sink",
         "Name[az]": "Sink kontaktları",
         "Name[ca@valencia]": "Contactes del Sink",
         "Name[ca]": "Contactes del Sink",
