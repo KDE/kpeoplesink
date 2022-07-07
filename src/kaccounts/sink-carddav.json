@@ -2,7 +2,7 @@
     "KPlugin": {
         "Description": "Sink contacts integration",
         "Description[ar]": "تكامل مع متراسلو Sink",
-        "Description[az]": "Sink kontaktlarının inteqrasiyası",
+        "Description[az]": "Sink əlaqələrinin inteqrasiyası",
         "Description[ca@valencia]": "Integració dels contactes de Sink",
         "Description[ca]": "Integració dels contactes del Sink",
         "Description[cs]": "Integrace kontaktů Sink",
@@ -37,7 +37,7 @@
         "License": "GPL",
         "Name": "Sink contacts",
         "Name[ar]": "متراسلو Sink",
-        "Name[az]": "Sink kontaktları",
+        "Name[az]": "Sink əlaqələri",
         "Name[ca@valencia]": "Contactes de Sink",
         "Name[ca]": "Contactes del Sink",
         "Name[cs]": "Kontakty Sink",
