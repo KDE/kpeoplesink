@@ -30,7 +30,6 @@
         "Description[sv]": "Integrering av Sink kontakter",
         "Description[tr]": "Havuz kişileri tümleştirmesi",
         "Description[uk]": "Інтеграція контактів Sink",
-        "Description[x-test]": "xxSink contacts integrationxx",
         "Description[zh_CN]": "Sink 联系人集成",
         "EnabledByDefault": true,
         "Icon": "",
@@ -66,7 +65,6 @@
         "Name[sv]": "Sink kontakter",
         "Name[tr]": "Havuz kişileri",
         "Name[uk]": "Контакти Sink",
-        "Name[x-test]": "xxSink contactsxx",
         "Name[zh_CN]": "Sink 联系人",
         "Version": "0.1"
     }
